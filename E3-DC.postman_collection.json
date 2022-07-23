@@ -4,5 +4,169 @@
 		"name": "E3/DC",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
-	"item": []
+	"item": [
+		{
+			"name": "Authenticate",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"ctx-window-id\", pm.request.headers.get('Window-Id'));\r",
+							"pm.collectionVariables.set(\"ctx-sessionid\", pm.cookies.get(\"PHPSESSID\"));\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Window-Id",
+						"value": "GUID-{{$guid}}",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "DO",
+							"value": "LOGIN",
+							"type": "default"
+						},
+						{
+							"key": "USERNAME",
+							"value": "{{e3dc-user}}",
+							"type": "default"
+						},
+						{
+							"key": "PASSWD",
+							"value": "{{e3dc-password}}",
+							"type": "default"
+						},
+						{
+							"key": "DENV",
+							"value": "E3DC",
+							"type": "default"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://s10.e3dc.com/s10/phpcmd/cmd.php",
+					"protocol": "https",
+					"host": [
+						"s10",
+						"e3dc",
+						"com"
+					],
+					"path": [
+						"s10",
+						"phpcmd",
+						"cmd.php"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Select System",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Window-Id",
+						"value": "{{ctx-window-id}}",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "DO",
+							"value": "GETCONTENT",
+							"type": "default"
+						},
+						{
+							"key": "MODID",
+							"value": "IDOVERVIEWUNITMAIN",
+							"type": "default"
+						},
+						{
+							"key": "ARG0",
+							"value": "{{e3dc-serial}}",
+							"type": "default"
+						},
+						{
+							"key": "TOS",
+							"value": "-7200",
+							"type": "default"
+						},
+						{
+							"key": "DENV",
+							"value": "E3DC",
+							"type": "default"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://s10.e3dc.com/s10/phpcmd/cmd.php",
+					"protocol": "https",
+					"host": [
+						"s10",
+						"e3dc",
+						"com"
+					],
+					"path": [
+						"s10",
+						"phpcmd",
+						"cmd.php"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "ctx-window-id",
+			"value": ""
+		},
+		{
+			"key": "ctx-sessionid",
+			"value": ""
+		}
+	]
 }
