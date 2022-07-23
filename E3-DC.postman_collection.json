@@ -23,6 +23,7 @@
 						"exec": [
 							"pm.collectionVariables.set(\"ctx-window-id\", pm.request.headers.get('Window-Id'));\r",
 							"pm.collectionVariables.set(\"ctx-sessionid\", pm.cookies.get(\"PHPSESSID\"));\r",
+							"pm.cookies = pm.response.cookies\r",
 							""
 						],
 						"type": "text/javascript"
@@ -87,7 +88,7 @@
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-							""
+							"pm.cookies.jar().set(\"PHPSESSID\", pm.collectionVariables.get(\"ctx-sessionid\") + \"xx\")"
 						],
 						"type": "text/javascript"
 					}
@@ -102,12 +103,20 @@
 					}
 				}
 			],
+			"protocolProfileBehavior": {
+				"disableCookies": true
+			},
 			"request": {
 				"method": "POST",
 				"header": [
 					{
 						"key": "Window-Id",
 						"value": "{{ctx-window-id}}",
+						"type": "default"
+					},
+					{
+						"key": "Cookie",
+						"value": "PHPSESSID={{ctx-sessionid}}",
 						"type": "default"
 					}
 				],
@@ -175,8 +184,9 @@
 					"script": {
 						"exec": [
 							"var template = `\r",
+							"Zeit: {{time}}\r",
 							"<h1>Status</h1>\r",
-							"{{status}}\r",
+							"{{status_text}}\r",
 							"<h1>Batterie</h1>\r",
 							"{{bat_text}}\r",
 							"\r",
@@ -201,9 +211,17 @@
 							"var bat_delta = parseInt(content['POWER_BAT']);\r",
 							"var bat_text = 'Ladezustand ' + bat_soc + ' % und wird mit ' + (bat_delta >= 0 ? bat_delta + ' W geladen' : -bat_delta + ' W entladen');\r",
 							"var status_text = 'Der aktuelle Strombedarf ist ' + haus + ' W';\r",
-							"if(bat_delta < 0) {\r",
-							"    status_text += ' der mit ' + -bat_delta + ' (also zu ' + -bat_delta/haus + ' %) aus der Batterie bezogen wird.';\r",
+							"if(bat_delta >= 0) {\r",
+							"    status_text += ' der vollständig aus Solar bezogen wird und die restlichen '\r",
+							"                   + solar-haus + ' W verteilen sich auf ' + bat_delta + ' W Batterie und ' + netz + ' W Einspeisung'; \r",
+							"} else {\r",
+							"    status_text += ' der mit ' + -bat_delta + ' W (also zu ' + Math.round(-1*(10000/haus)*bat_delta)/100 + ' %) aus der Batterie bezogen wird';\r",
+							"    if(netz > 0) {\r",
+							"        status_text += ' d.h. es werden ' + netz + ' W aus dem Netz benötigt';\r",
+							"    }\r",
 							"}\r",
+							"status_text += '.';\r",
+							"time = content['time'];\r",
 							"\r",
 							"var values = {\r",
 							"    bat_soc: bat_soc,\r",
@@ -212,7 +230,8 @@
 							"    solar: solar,\r",
 							"    netz: netz,\r",
 							"    haus: haus,\r",
-							"    status_text: status_text\r",
+							"    status_text: status_text,\r",
+							"    time: time\r",
 							"};\r",
 							"\r",
 							"pm.visualizer.set(template, values);"
@@ -287,7 +306,15 @@
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-							""
+							"var deltaDays = -1;\r",
+							"\r",
+							"var oneDay = 86400000\r",
+							"var d = new Date();\r",
+							"d.setHours(0,0,0,0);\r",
+							"var today = +d;\r",
+							"var reference = today + deltaDays * oneDay;\r",
+							"pm.collectionVariables.set(\"ctx_today\", reference);\r",
+							"pm.collectionVariables.set(\"ctx_tomorrow\", reference + oneDay);"
 						],
 						"type": "text/javascript"
 					}
@@ -296,7 +323,40 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							""
+							"var template = `\r",
+							"{{von}} - {{bis}}\r",
+							"<table>\r",
+							"<tr><td>Verbrauch:</td><td>{{verbrauch}} kWh</td></tr>\r",
+							"<tr><td>Produktion:</td><td>{{produktion}} kWh</td></tr>\r",
+							"<tr><td>Einspeisung:</td><td>{{netzeinspeisung}} kWh</td></tr>\r",
+							"<tr><td>Netzbezug:</td><td>{{netzbezug}} kWh</td></tr>\r",
+							"</table>\r",
+							"`;\r",
+							"\r",
+							"var content = pm.response.json()['CONTENT'];\r",
+							"var history = content['history'];\r",
+							"var first = history[0];\r",
+							"var last = history[history.length - 1];\r",
+							"\r",
+							"function diff(index) {\r",
+							"  return Math.round((parseFloat(last[index]) - parseFloat(first[index])) / 10) / 100;\r",
+							"}\r",
+							"\r",
+							"var von = new Date(first[0]).toLocaleString(\"de-DE\");\r",
+							"var bis = new Date(last[0]).toLocaleString(\"de-DE\");\r",
+							"\r",
+							"var values = {\r",
+							"    von: von,\r",
+							"    bis: bis,\r",
+							"    bat_laden: diff(2),\r",
+							"    bat_entladen: diff(3),\r",
+							"    netzeinspeisung: diff(4),\r",
+							"    netzbezug: diff(5),\r",
+							"    verbrauch: diff(6),\r",
+							"    produktion: diff(8) + diff(9)\r",
+							"};\r",
+							"\r",
+							"pm.visualizer.set(template, values);"
 						],
 						"type": "text/javascript"
 					}
@@ -349,23 +409,23 @@
 						},
 						{
 							"key": "FROM_HISTORY",
-							"value": "1658433593011",
+							"value": "{{ctx_today}}",
 							"type": "default"
 						},
 						{
 							"key": "FROM_FORECAST",
-							"value": "1658433593011",
+							"value": "",
 							"type": "default",
 							"disabled": true
 						},
 						{
 							"key": "TO",
-							"value": "1658519993011",
+							"value": "{{ctx_tomorrow}}",
 							"type": "default"
 						},
 						{
 							"key": "TO_FORECAST",
-							"value": "1658606393011",
+							"value": "",
 							"type": "default",
 							"disabled": true
 						}
@@ -442,7 +502,7 @@
 					"urlencoded": [
 						{
 							"key": "DO",
-							"value": "SystemDataHandler_getHistoryValues",
+							"value": "SystemDataHandler_getSystemInfos",
 							"type": "default"
 						},
 						{
@@ -454,28 +514,6 @@
 							"key": "SN",
 							"value": "{{e3dc-serial}}",
 							"type": "default"
-						},
-						{
-							"key": "FROM_HISTORY",
-							"value": "1658433593011",
-							"type": "default"
-						},
-						{
-							"key": "FROM_FORECAST",
-							"value": "1658433593011",
-							"type": "default",
-							"disabled": true
-						},
-						{
-							"key": "TO",
-							"value": "1658519993011",
-							"type": "default"
-						},
-						{
-							"key": "TO_FORECAST",
-							"value": "1658606393011",
-							"type": "default",
-							"disabled": true
 						}
 					]
 				},
@@ -504,6 +542,14 @@
 		},
 		{
 			"key": "ctx-sessionid",
+			"value": ""
+		},
+		{
+			"key": "ctx_today",
+			"value": ""
+		},
+		{
+			"key": "ctx_tomorrow",
 			"value": ""
 		}
 	]
