@@ -279,6 +279,222 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "History",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableCookies": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Window-Id",
+						"value": "{{ctx-window-id}}",
+						"type": "default"
+					},
+					{
+						"key": "Pragma",
+						"value": "no-cache",
+						"type": "default"
+					},
+					{
+						"key": "Cache-Control",
+						"value": "no-store",
+						"type": "default"
+					},
+					{
+						"key": "Cookie",
+						"value": "PHPSESSID={{ctx-sessionid}}",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "DO",
+							"value": "SystemDataHandler_getHistoryValues",
+							"type": "default"
+						},
+						{
+							"key": "DENV",
+							"value": "E3DC",
+							"type": "default"
+						},
+						{
+							"key": "SN",
+							"value": "{{e3dc-serial}}",
+							"type": "default"
+						},
+						{
+							"key": "FROM_HISTORY",
+							"value": "1658433593011",
+							"type": "default"
+						},
+						{
+							"key": "FROM_FORECAST",
+							"value": "1658433593011",
+							"type": "default",
+							"disabled": true
+						},
+						{
+							"key": "TO",
+							"value": "1658519993011",
+							"type": "default"
+						},
+						{
+							"key": "TO_FORECAST",
+							"value": "1658606393011",
+							"type": "default",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "https://s10.e3dc.com/s10/phpcmd/cmd.php",
+					"protocol": "https",
+					"host": [
+						"s10",
+						"e3dc",
+						"com"
+					],
+					"path": [
+						"s10",
+						"phpcmd",
+						"cmd.php"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "System infos",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableCookies": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Window-Id",
+						"value": "{{ctx-window-id}}",
+						"type": "default"
+					},
+					{
+						"key": "Pragma",
+						"value": "no-cache",
+						"type": "default"
+					},
+					{
+						"key": "Cache-Control",
+						"value": "no-store",
+						"type": "default"
+					},
+					{
+						"key": "Cookie",
+						"value": "PHPSESSID={{ctx-sessionid}}",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "DO",
+							"value": "SystemDataHandler_getHistoryValues",
+							"type": "default"
+						},
+						{
+							"key": "DENV",
+							"value": "E3DC",
+							"type": "default"
+						},
+						{
+							"key": "SN",
+							"value": "{{e3dc-serial}}",
+							"type": "default"
+						},
+						{
+							"key": "FROM_HISTORY",
+							"value": "1658433593011",
+							"type": "default"
+						},
+						{
+							"key": "FROM_FORECAST",
+							"value": "1658433593011",
+							"type": "default",
+							"disabled": true
+						},
+						{
+							"key": "TO",
+							"value": "1658519993011",
+							"type": "default"
+						},
+						{
+							"key": "TO_FORECAST",
+							"value": "1658606393011",
+							"type": "default",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "https://s10.e3dc.com/s10/phpcmd/cmd.php",
+					"protocol": "https",
+					"host": [
+						"s10",
+						"e3dc",
+						"com"
+					],
+					"path": [
+						"s10",
+						"phpcmd",
+						"cmd.php"
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"variable": [
