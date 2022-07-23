@@ -157,6 +157,128 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Live Data",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var template = `\r",
+							"<h1>Status</h1>\r",
+							"{{status}}\r",
+							"<h1>Batterie</h1>\r",
+							"{{bat_text}}\r",
+							"\r",
+							"<h1>Details</h1>\r",
+							"<table>\r",
+							"<tr><td>Batterie:</td><td>{{bat_delta}} W</td></tr>\r",
+							"<tr><td>Solar:</td><td>{{solar}} W</td></tr>\r",
+							"<tr><td>Netz:</td><td>{{netz}} W</td></tr>\r",
+							"<tr><td>Haus:</td><td>{{haus}} W</td></tr>\r",
+							"</table>\r",
+							"`;\r",
+							"\r",
+							"function sum(content, name) {\r",
+							"  return parseInt(content[name + '1']) + parseInt(content[name + '2']) + parseInt(content[name + '3']);\r",
+							"}\r",
+							"\r",
+							"var content = JSON.parse(pm.response.json()['CONTENT']);\r",
+							"var solar = sum(content, 'POWER_PV_S');\r",
+							"var netz = sum(content, 'POWER_LM_L');\r",
+							"var haus = sum(content, 'POWER_C_L');\r",
+							"var bat_soc = parseInt(content['SOC']);\r",
+							"var bat_delta = parseInt(content['POWER_BAT']);\r",
+							"var bat_text = 'Ladezustand ' + bat_soc + ' % und wird mit ' + (bat_delta >= 0 ? bat_delta + ' W geladen' : -bat_delta + ' W entladen');\r",
+							"var status_text = 'Der aktuelle Strombedarf ist ' + haus + ' W';\r",
+							"if(bat_delta < 0) {\r",
+							"    status_text += ' der mit ' + -bat_delta + ' (also zu ' + -bat_delta/haus + ' %) aus der Batterie bezogen wird.';\r",
+							"}\r",
+							"\r",
+							"var values = {\r",
+							"    bat_soc: bat_soc,\r",
+							"    bat_delta: bat_delta,\r",
+							"    bat_text: bat_text,\r",
+							"    solar: solar,\r",
+							"    netz: netz,\r",
+							"    haus: haus,\r",
+							"    status_text: status_text\r",
+							"};\r",
+							"\r",
+							"pm.visualizer.set(template, values);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableCookies": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Window-Id",
+						"value": "{{ctx-window-id}}",
+						"type": "default"
+					},
+					{
+						"key": "Pragma",
+						"value": "no-cache",
+						"type": "default"
+					},
+					{
+						"key": "Cache-Control",
+						"value": "no-store",
+						"type": "default"
+					},
+					{
+						"key": "Cookie",
+						"value": "PHPSESSID={{ctx-sessionid}}",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "DO",
+							"value": "LIVEUNITDATA",
+							"type": "default"
+						},
+						{
+							"key": "DENV",
+							"value": "E3DC",
+							"type": "default"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://s10.e3dc.com/s10/phpcmd/cmd.php",
+					"protocol": "https",
+					"host": [
+						"s10",
+						"e3dc",
+						"com"
+					],
+					"path": [
+						"s10",
+						"phpcmd",
+						"cmd.php"
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"variable": [
