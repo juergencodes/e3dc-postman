@@ -1,0 +1,43 @@
+history: (laut code)
+
+BatPowerIn
+BatPowerOut
+NetIn
+NetOut
+(ConsumptionL1+ConsumptionL2+ConsumptionL3) AS Consumption
+ASOC
+DC_PowerL1
+DC_PowerL2
+
+
+history (nach meiner analyse):
+
+timestamp
+?
+Batterie laden (+ x?)
+Batterie entladen (+ x?)
+Netzeinspeisung (+x ?)
+Netzbezug (+ x?)
+Hausverbrauch
+SOC
+Solar 1
+Solar 2
+
+
+                1658608200000,
+                61695,
+                90016.857,
+                72733.642,
+                763810.706,
+                4563.546,
+                128137.044,
+                92.48,
+                563416,
+                380317
+
+
+
+powerMeter:
+
+NetIn
+NetOut
